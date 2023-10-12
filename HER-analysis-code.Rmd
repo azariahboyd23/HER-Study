@@ -1,0 +1,75 @@
+---
+title: "HER-analysis"
+author: "Azariah Boyd"
+date: "10/12/2023"
+output: html_document
+---
+
+```{r include=FALSE}
+# read in data sets 
+library(readxl)
+library(readr)
+
+phthal <- read_xlsx("~/Desktop/HER-Study/HER-data-copy.xlsx")
+
+sp_data <- read_csv("~/Desktop/HER-Study/HERStudy-ABDataPull_DATA_2023-10-02_1218.csv")
+```
+<br> 
+<br> 
+<br> 
+
+#### Distribution of Specific Gravity 
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+# subset data
+library(tidyverse)
+sp_data2 <- sp_data %>% 
+  select(record_id, sg_urine1)
+
+#remove missing values 
+sp_data2na <- sp_data2 %>% na.omit()
+
+sp_dist_table <- sp_data2na %>% 
+  summarize(mean = mean(sg_urine1),
+            median = median(sg_urine1),
+            lower_limit = quantile(sg_urine1, 0.025),
+            upper_limit = quantile(sg_urine1, 0.975),
+            sd = sd(sg_urine1), .groups = "keep") 
+
+library(knitr)
+kable(sp_dist_table, format = "markdown")
+
+```
+<br> 
+<br> 
+<br> 
+
+#### Distribution of Phthalate Concentrations (ng/mL) 
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+phthal2 <- phthal %>%
+  select(SID, `Analyte Code`, Concentration, LOD, `Comment Code`)
+
+library(knitr)
+
+# Create a table with phthalate concentration statistics
+phthal_dist_table <- phthal2 %>% 
+  group_by(`Analyte Code`) %>% 
+  summarize(mean = mean(Concentration),
+            median = median(Concentration),
+            lower_limit = quantile(Concentration, 0.025),
+            upper_limit = quantile(Concentration, 0.975),
+            sd = sd(Concentration), .groups = "keep")
+
+# Print table
+kable(phthal_dist_table, format = "markdown")
+
+```
+
+
+
+
+
+
+
+
+
+
